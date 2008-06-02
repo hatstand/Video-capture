@@ -138,8 +138,6 @@ int main (int argc, char** argv) {
 
 			// We have a full frame
 			if (frame_finished) {
-				// Save frame
-				save_frame(frame, codec_ctx->width, codec_ctx->height);
 
 				// Set overlay to use this frame's data.
 				SDL_LockYUVOverlay(bmp);
@@ -167,6 +165,9 @@ int main (int argc, char** argv) {
 				// Convert from YUV420P to RGB
 				sws_scale(ctx, frame->data, frame->linesize, 0,
 					codec_ctx->height, ((AVPicture*)frame_rgb)->data, ((AVPicture*)frame_rgb)->linesize);
+				
+				// Save frame
+				save_frame(frame_rgb, codec_ctx->width, codec_ctx->height);
 			}
 		}
 
