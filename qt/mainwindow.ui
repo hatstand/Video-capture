@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>715</width>
+    <height>580</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -17,26 +17,88 @@
     <rect>
      <x>0</x>
      <y>28</y>
-     <width>800</width>
-     <height>547</height>
+     <width>715</width>
+     <height>527</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout" >
     <item>
-     <widget class="QLabel" name="video_label_" >
-      <property name="text" >
-       <string/>
+     <widget class="QSplitter" name="splitter" >
+      <property name="orientation" >
+       <enum>Qt::Vertical</enum>
       </property>
+      <widget class="QLabel" name="video_label_" >
+       <property name="minimumSize" >
+        <size>
+         <width>640</width>
+         <height>480</height>
+        </size>
+       </property>
+       <property name="maximumSize" >
+        <size>
+         <width>640</width>
+         <height>480</height>
+        </size>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+      </widget>
+      <widget class="QWidget" name="" >
+       <layout class="QHBoxLayout" name="horizontalLayout" >
+        <item>
+         <widget class="QPushButton" name="green_button_" >
+          <property name="text" >
+           <string>Set Green Box</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="red_button_" >
+          <property name="text" >
+           <string>Set Red Box</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="yellow_button_" >
+          <property name="text" >
+           <string>Set Yellow Box</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="blue_button_" >
+          <property name="text" >
+           <string>Set Blue Box</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="orange_button_" >
+          <property name="text" >
+           <string>Set Orange Box</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
+   <zorder>red_button_</zorder>
+   <zorder>yellow_button_</zorder>
+   <zorder>blue_button_</zorder>
+   <zorder>orange_button_</zorder>
+   <zorder>video_label_</zorder>
+   <zorder>green_button_</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar" >
    <property name="geometry" >
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>715</width>
      <height>28</height>
     </rect>
    </property>
@@ -45,8 +107,8 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>575</y>
-     <width>800</width>
+     <y>555</y>
+     <width>715</width>
      <height>25</height>
     </rect>
    </property>

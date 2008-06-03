@@ -1,5 +1,6 @@
 #include "ffmpeg.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QMutexLocker>
 
@@ -68,7 +69,6 @@ Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent) {
 }
 
 Ffmpeg::~Ffmpeg() {
-	free(format_params_);
 }
 
 
@@ -93,6 +93,8 @@ void Ffmpeg::run() {
 		}
 
 		av_free_packet(&packet);
+
+		QCoreApplication::processEvents();
 
 		if (!run_)
 			return;

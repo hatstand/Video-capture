@@ -15,4 +15,6 @@ FORMS += mainwindow.ui
 
 QT = core gui
 
+CONFIG += debug
+
 LIBS += -lavdevice -lavcodec -lavformat -lswscale

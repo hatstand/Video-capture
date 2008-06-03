@@ -4,21 +4,33 @@
 #include "ui_mainwindow.h"
 
 #include <QMainWindow>
+#include <QSignalMapper>
 
 class Ffmpeg;
 
 class MainWindow : public QMainWindow {
 Q_OBJECT
 public:
-	MainWindow(Ffmpeg* grabber, QObject* parent = NULL);
+	MainWindow(Ffmpeg* grabber);
 	virtual ~MainWindow();
 
 private:
+	enum Colour {
+		Green = 0,
+		Red,
+		Yellow,
+		Blue,
+		Orange
+	};
+
+
 	Ui_MainWindow ui_;
 	Ffmpeg* grabber_;
+	QSignalMapper button_mapper_;
 
 private slots:
 	void frameAvailable();
+	void setBox(int c);
 
 };
 
