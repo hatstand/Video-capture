@@ -11,17 +11,17 @@ MainWindow::MainWindow(Ffmpeg* grabber)
 	connect(qApp, SIGNAL(lastWindowClosed()), grabber_, SLOT(stop()));
 
 	connect(ui_.green_button_, SIGNAL(clicked()), &button_mapper_, SLOT(map()));
-	button_mapper_.setMapping(ui_.green_button_, Green);
+	button_mapper_.setMapping(ui_.green_button_, MyLabel::Green);
 	connect(ui_.red_button_, SIGNAL(clicked()), &button_mapper_, SLOT(map()));
-	button_mapper_.setMapping(ui_.red_button_, Red);
+	button_mapper_.setMapping(ui_.red_button_, MyLabel::Red);
 	connect(ui_.yellow_button_, SIGNAL(clicked()), &button_mapper_, SLOT(map()));
-	button_mapper_.setMapping(ui_.yellow_button_, Yellow);
+	button_mapper_.setMapping(ui_.yellow_button_, MyLabel::Yellow);
 	connect(ui_.blue_button_, SIGNAL(clicked()), &button_mapper_, SLOT(map()));
-	button_mapper_.setMapping(ui_.blue_button_, Blue);
+	button_mapper_.setMapping(ui_.blue_button_, MyLabel::Blue);
 	connect(ui_.orange_button_, SIGNAL(clicked()), &button_mapper_, SLOT(map()));
-	button_mapper_.setMapping(ui_.orange_button_, Orange);
+	button_mapper_.setMapping(ui_.orange_button_, MyLabel::Orange);
 
-	connect(&button_mapper_, SIGNAL(mapped(int)), this, SLOT(setBox(int)));
+	connect(&button_mapper_, SIGNAL(mapped(int)), ui_.video_label_, SLOT(setBox(int)));
 }
 
 MainWindow::~MainWindow() {
@@ -29,8 +29,4 @@ MainWindow::~MainWindow() {
 
 void MainWindow::frameAvailable() {
 	ui_.video_label_->setPixmap(QPixmap::fromImage(grabber_->getImage()));
-}
-
-void MainWindow::setBox(int c) {
-	qDebug() << __PRETTY_FUNCTION__ << c;
 }

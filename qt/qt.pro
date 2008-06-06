@@ -6,10 +6,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
 	ffmpeg.cpp \
-	mainwindow.cpp
+	mainwindow.cpp \
+	mylabel.cpp
 
 HEADERS += ffmpeg.h \
-	mainwindow.h
+	mainwindow.h \
+	mylabel.h
 
 FORMS += mainwindow.ui
 

@@ -16,6 +16,8 @@ Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent) {
 	format_params_->time_base.den = 30000;
 	format_params_->time_base.num = 1001;
 
+	format_ctx_ = av_alloc_format_context();
+
 	AVInputFormat* input_format = av_find_input_format("video4linux2");
 	if (!input_format)
 		error("av_find_input_format");

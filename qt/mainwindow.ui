@@ -1,5 +1,12 @@
 <ui version="4.0" >
  <class>MainWindow</class>
+ <customwidgets>
+ <customwidget>
+    <class>MyLabel</class>
+    <extends>QLabel</extends>
+    <header>mylabel.h</header>
+ </customwidget>
+ </customwidgets>
  <widget class="QMainWindow" name="MainWindow" >
   <property name="geometry" >
    <rect>
@@ -27,7 +34,7 @@
       <property name="orientation" >
        <enum>Qt::Vertical</enum>
       </property>
-      <widget class="QLabel" name="video_label_" >
+      <widget class="MyLabel" name="video_label_" >
        <property name="minimumSize" >
         <size>
          <width>640</width>
