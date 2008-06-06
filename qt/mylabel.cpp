@@ -46,7 +46,7 @@ void MyLabel::mouseReleaseEvent(QMouseEvent*) {
 void MyLabel::paintEvent(QPaintEvent* event) {
 	QLabel::paintEvent(event);
 
-	QBrush brush(QColor::fromRgba(qRgba(0, 255, 0, 200)));
+	QBrush brush(QColor(0, 255, 0, 200));
 
 	QPainter p(this);
 	p.setBrush(grey_brush_);
