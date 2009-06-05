@@ -2,10 +2,10 @@
 #define FFMPEG_H
 
 extern "C" {
-	#include <ffmpeg/avcodec.h>
-	#include <ffmpeg/avdevice.h>
-	#include <ffmpeg/avformat.h>
-	#include <ffmpeg/swscale.h>
+	#include <ffmpeg/libavcodec/avcodec.h>
+	#include <ffmpeg/libavdevice/avdevice.h>
+	#include <ffmpeg/libavformat/avformat.h>
+	#include <ffmpeg/libswscale/swscale.h>
 }
 
 #include <cstdlib>

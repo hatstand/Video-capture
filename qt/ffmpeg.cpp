@@ -8,9 +8,9 @@ Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent) {
 	av_register_all();
 	avdevice_register_all();
 
-	format_params_ = (AVFormatParameters*) malloc(sizeof(AVFormatParameters));
-	format_params_->channel = 1;
-	format_params_->standard = "pal-60";
+	format_params_ = (AVFormatParameters*) calloc(1, sizeof(AVFormatParameters));
+	//format_params_->channel = 1;
+	//format_params_->standard = "pal-60";
 	format_params_->width = 640;
 	format_params_->height = 480;
 	format_params_->time_base.den = 30000;
@@ -64,7 +64,7 @@ Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent) {
 
 	sws_ctx_ = sws_getContext(codec_ctx_->width, codec_ctx_->height, codec_ctx_->pix_fmt,
 		codec_ctx_->width, codec_ctx_->height, PIX_FMT_RGB24,
-		0, NULL, NULL, NULL);
+		SWS_BICUBIC, NULL, NULL, NULL);
 
 	if (!sws_ctx_)
 		error("sws_getContext");

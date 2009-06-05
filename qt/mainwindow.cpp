@@ -25,6 +25,8 @@ MainWindow::MainWindow(Ffmpeg* grabber)
 }
 
 MainWindow::~MainWindow() {
+	grabber_->stop();
+	grabber_->wait(5000);
 }
 
 void MainWindow::frameAvailable() {

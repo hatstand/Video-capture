@@ -20,3 +20,4 @@ QT = core gui
 CONFIG += debug
 
 LIBS += -lavdevice -lavcodec -lavformat -lswscale
+INCLUDEPATH += /usr/include/ffmpeg
