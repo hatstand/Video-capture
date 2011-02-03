@@ -12,16 +12,16 @@ class Ffmpeg;
 class MainWindow : public QMainWindow {
 Q_OBJECT
 public:
-	MainWindow(Ffmpeg* grabber);
-	virtual ~MainWindow();
+  MainWindow(Ffmpeg* grabber);
+  virtual ~MainWindow();
 
 private:
-	Ui_MainWindow ui_;
-	Ffmpeg* grabber_;
-	QSignalMapper button_mapper_;
+  Ui_MainWindow ui_;
+  Ffmpeg* grabber_;
+  QSignalMapper button_mapper_;
 
 private slots:
-	void frameAvailable();
+  void frameAvailable();
 };
 
 #endif

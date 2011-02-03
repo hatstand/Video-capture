@@ -8,42 +8,42 @@
 class MyLabel : public QLabel {
 Q_OBJECT
 public:
-	MyLabel(QWidget* parent = NULL);
-	virtual ~MyLabel();
+  MyLabel(QWidget* parent = NULL);
+  virtual ~MyLabel();
 
-	QRect box() { return box_; }
+  QRect box() { return box_; }
 
-	enum Colour {
-		Green = 0,
-		Red,
-		Yellow,
-		Blue,
-		Orange
-	};
+  enum Colour {
+    Green = 0,
+    Red,
+    Yellow,
+    Blue,
+    Orange
+  };
 
 public slots:
-	void setBox(int colour);
+  void setBox(int colour);
 
 private:
-	void mousePressEvent(QMouseEvent* event);
-	void mouseMoveEvent(QMouseEvent* event);
-	void mouseReleaseEvent(QMouseEvent* event);
+  void mousePressEvent(QMouseEvent* event);
+  void mouseMoveEvent(QMouseEvent* event);
+  void mouseReleaseEvent(QMouseEvent* event);
 
-	void paintEvent(QPaintEvent* event);
+  void paintEvent(QPaintEvent* event);
 
-	static QBrush& getBrush(Colour c);
+  static QBrush& getBrush(Colour c);
 
-	QRect box_;
-	bool mouse_down_;
-	QMap<Colour, QRect> boxes_;
+  QRect box_;
+  bool mouse_down_;
+  QMap<Colour, QRect> boxes_;
 
-	static int brush_alpha_;
-	static QBrush green_brush_;
-	static QBrush red_brush_;
-	static QBrush yellow_brush_;
-	static QBrush blue_brush_;
-	static QBrush orange_brush_;
-	static QBrush grey_brush_;
+  static int brush_alpha_;
+  static QBrush green_brush_;
+  static QBrush red_brush_;
+  static QBrush yellow_brush_;
+  static QBrush blue_brush_;
+  static QBrush orange_brush_;
+  static QBrush grey_brush_;
 };
 
 #endif

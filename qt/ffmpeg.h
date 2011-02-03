@@ -2,10 +2,10 @@
 #define FFMPEG_H
 
 extern "C" {
-	#include <ffmpeg/libavcodec/avcodec.h>
-	#include <ffmpeg/libavdevice/avdevice.h>
-	#include <ffmpeg/libavformat/avformat.h>
-	#include <ffmpeg/libswscale/swscale.h>
+  #include <ffmpeg/libavcodec/avcodec.h>
+  #include <ffmpeg/libavdevice/avdevice.h>
+  #include <ffmpeg/libavformat/avformat.h>
+  #include <ffmpeg/libswscale/swscale.h>
 }
 
 #include <cstdlib>
@@ -17,36 +17,36 @@ extern "C" {
 class Ffmpeg : public QThread {
 Q_OBJECT
 public:
-	Ffmpeg(QObject* parent = 0);
-	virtual ~Ffmpeg();
-	QImage getImage();
+  Ffmpeg(QObject* parent = 0);
+  virtual ~Ffmpeg();
+  QImage getImage();
 
 signals:
-	void frameAvailable();
+  void frameAvailable();
 
 public slots:
-	void stop();
+  void stop();
 
 private:
-	void run();
-	void error(const QString& s);
+  void run();
+  void error(const QString& s);
 
-	AVFormatContext* format_ctx_;
-	AVFormatParameters* format_params_;
+  AVFormatContext* format_ctx_;
+  AVFormatParameters* format_params_;
 
-	AVCodecContext* codec_ctx_;
-	AVCodec* codec_;
+  AVCodecContext* codec_ctx_;
+  AVCodec* codec_;
 
-	int video_stream_;
+  int video_stream_;
 
-	AVFrame* yuv_frame_;
-	AVFrame* rgb_frame_;
+  AVFrame* yuv_frame_;
+  AVFrame* rgb_frame_;
 
-	SwsContext* sws_ctx_;
+  SwsContext* sws_ctx_;
 
-	QMutex mutex_;
+  QMutex mutex_;
 
-	bool run_;
+  bool run_;
 };
 
 #endif

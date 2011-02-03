@@ -18,63 +18,63 @@ MyLabel::~MyLabel() {
 }
 
 void MyLabel::mousePressEvent(QMouseEvent* event) {
-	mouse_down_ = true;
-	box_.setTopLeft(QPoint(event->x(), event->y()));
-	box_.setBottomRight(QPoint(event->x(), event->y()));
+  mouse_down_ = true;
+  box_.setTopLeft(QPoint(event->x(), event->y()));
+  box_.setBottomRight(QPoint(event->x(), event->y()));
 }
 
 void MyLabel::mouseMoveEvent(QMouseEvent* event) {
-	if (mouse_down_) {
-		if (event->x() > box_.left())
-			box_.setRight(event->x());
-		else
-			box_.setLeft(event->x());
+  if (mouse_down_) {
+    if (event->x() > box_.left())
+      box_.setRight(event->x());
+    else
+      box_.setLeft(event->x());
 
-		if (event->y() > box_.top())
-			box_.setBottom(event->y());
-		else
-			box_.setTop(event->y());
+    if (event->y() > box_.top())
+      box_.setBottom(event->y());
+    else
+      box_.setTop(event->y());
 
-		update();
-	}
+    update();
+  }
 }
 
 void MyLabel::mouseReleaseEvent(QMouseEvent*) {
-	mouse_down_ = false;
+  mouse_down_ = false;
 }
 
 void MyLabel::paintEvent(QPaintEvent* event) {
-	QLabel::paintEvent(event);
+  QLabel::paintEvent(event);
 
-	QBrush brush(QColor(0, 255, 0, 200));
+  QBrush brush(QColor(0, 255, 0, 200));
 
-	QPainter p(this);
-	p.setBrush(grey_brush_);
-	p.drawRect(box_);
+  QPainter p(this);
+  p.setBrush(grey_brush_);
+  p.drawRect(box_);
 
-	for (QMap<Colour, QRect>::const_iterator it = boxes_.constBegin(); it != boxes_.constEnd(); ++it) {
-		p.setBrush(getBrush(it.key()));
-		p.drawRect(it.value());
-	}
+  for (QMap<Colour, QRect>::const_iterator it = boxes_.constBegin(); it != boxes_.constEnd(); ++it) {
+    p.setBrush(getBrush(it.key()));
+    p.drawRect(it.value());
+  }
 }
 
 void MyLabel::setBox(int colour) {
-	boxes_.insert((Colour)colour, box_);
+  boxes_.insert((Colour)colour, box_);
 }
 
 QBrush& MyLabel::getBrush(Colour c) {
-	switch (c) {
-		case Green:
-			return green_brush_;
-		case Red:
-			return red_brush_;
-		case Yellow:
-			return yellow_brush_;
-		case Blue:
-			return blue_brush_;
-		case Orange:
-			return orange_brush_;
-		default:
-			return grey_brush_;
-	}
+  switch (c) {
+    case Green:
+      return green_brush_;
+    case Red:
+      return red_brush_;
+    case Yellow:
+      return yellow_brush_;
+    case Blue:
+      return blue_brush_;
+    case Orange:
+      return orange_brush_;
+    default:
+      return grey_brush_;
+  }
 }

@@ -4,14 +4,14 @@
 #include "mainwindow.h"
 
 int main (int argc, char** argv) {
-	QApplication app(argc, argv);
+  QApplication app(argc, argv);
 
-	Ffmpeg grab;
-	MainWindow w(&grab);
+  Ffmpeg grab;
+  MainWindow w(&grab);
 
-	w.show();
+  w.show();
 
-	grab.start();
+  grab.start();
 
-	return app.exec();
+  return app.exec();
 }
