@@ -49,6 +49,11 @@ void MyLabel::mouseReleaseEvent(QMouseEvent*) {
 void MyLabel::paintEvent(QPaintEvent* event) {
   QPainter p(this);
   p.drawImage(0, 0, image_);
+  p.setPen(Qt::white);
+  QFont font;
+  font.setBold(true);
+  p.setFont(font);
+  p.drawText(30, 30, QString("%1 fps").arg(current_fps_, 4, 'g', 3));
 }
 
 void MyLabel::setBox(int colour) {
@@ -76,6 +81,6 @@ void MyLabel::setImage(const QImage& image) {
   image_ = image;
   update();
   QTime now = QTime::currentTime();
-  qDebug() << 1000.0 / last_frame_.msecsTo(now) << "fps";
+  current_fps_ =  1000.0 / last_frame_.msecsTo(now);
   last_frame_ = now;
 }

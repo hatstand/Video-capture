@@ -51,6 +51,7 @@ private:
   static QBrush grey_brush_;
 
   QTime last_frame_;
+  double current_fps_;
 };
 
 #endif
