@@ -24,7 +24,7 @@ void ReleaseBuffer(AVCodecContext* context, AVFrame* frame) {
   avcodec_default_release_buffer(context, frame);
 }
 
-Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent) {
+Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent), last_pts_(0.0) {
   av_register_all();
   avdevice_register_all();
 
@@ -93,13 +93,34 @@ Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent) {
 
   if (!sws_ctx_)
     error("sws_getContext");
+
+  moveToThread(this);
 }
 
 Ffmpeg::~Ffmpeg() {
 }
 
 void Ffmpeg::run() {
+  timer_ = new QTimer();
+  timer_->setSingleShot(false);
+  connect(timer_, SIGNAL(timeout()), SLOT(Timeout()));
   run_ = true;
+  last_frame_time_ = av_gettime() - 1;
+  ProcessFrame();
+  exec();
+}
+
+void Ffmpeg::ProcessFrame() {
+  qDebug() << QThread::currentThread();
+  int64_t time = av_gettime();
+  int64_t actual_delay = time - last_frame_time_;
+  printf("Delay: %lld %f\n", actual_delay, frame_delay_);
+  if (actual_delay < frame_delay_) {
+    int delay = frame_delay_ - actual_delay;
+    printf("Waiting: %d\n", delay);
+    timer_->start(delay);
+    return;
+  }
 
   AVPacket packet;
   while (av_read_frame(format_ctx_, &packet) >= 0) {
@@ -129,20 +150,26 @@ void Ffmpeg::run() {
         }
 
         pts = SyncVideo(yuv_frame_, pts);
-        printf("%f\n", pts);
-        usleep(pts);
 
         emit frameAvailable();
+
+        frame_delay_ = (pts - last_pts_) > 0 ? pts - last_pts_ : 0;
+        printf("PTS: %f %f Calculated delay: %f\n", pts, last_pts_, frame_delay_);
+        timer_->start(frame_delay_ / 1000.0);
+        last_pts_ = pts;
+        last_frame_time_ = av_gettime();
+
+        av_free_packet(&packet);
+        return;
       }
     }
-
-    av_free_packet(&packet);
-
-    QCoreApplication::processEvents();
-
-    if (!run_)
-      return;
   }
+}
+
+void Ffmpeg::Timeout() {
+  qDebug() << Q_FUNC_INFO;
+  timer_->stop();
+  ProcessFrame();
 }
 
 double Ffmpeg::SyncVideo(AVFrame* frame, double pts) {

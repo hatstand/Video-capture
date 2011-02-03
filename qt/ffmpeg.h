@@ -10,9 +10,11 @@ extern "C" {
 
 #include <cstdlib>
 
+#include <QEventLoop>
 #include <QImage>
 #include <QMutex>
 #include <QThread>
+#include <QTimer>
 
 class Ffmpeg : public QThread {
 Q_OBJECT
@@ -26,11 +28,13 @@ signals:
 
 public slots:
   void stop();
+  void Timeout();
 
 private:
   void run();
   void error(const QString& s);
 
+  void ProcessFrame();
   double SyncVideo(AVFrame* frame, double pts);
 
   AVFormatContext* format_ctx_;
@@ -47,6 +51,11 @@ private:
   SwsContext* sws_ctx_;
 
   double video_clock_;
+  double last_pts_;
+  double frame_delay_;
+  int64_t last_frame_time_;
+
+  QTimer* timer_;
 
   QMutex mutex_;
 

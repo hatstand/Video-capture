@@ -4,10 +4,13 @@
 
 #include <QDebug>
 
+#include <QApplication>
+#include <QThread>
+
 MainWindow::MainWindow(Ffmpeg* grabber)
   : grabber_(grabber), button_mapper_(this) {
   ui_.setupUi(this);
-  connect(grabber_, SIGNAL(frameAvailable()), SLOT(frameAvailable()), Qt::BlockingQueuedConnection);
+  connect(grabber_, SIGNAL(frameAvailable()), SLOT(frameAvailable()));
   connect(qApp, SIGNAL(lastWindowClosed()), grabber_, SLOT(stop()));
 
   connect(ui_.green_button_, SIGNAL(clicked()), &button_mapper_, SLOT(map()));
@@ -31,5 +34,4 @@ MainWindow::~MainWindow() {
 
 void MainWindow::frameAvailable() {
   ui_.video_label_->setImage(grabber_->getImage());
-  printf("Frame!\n");
 }
