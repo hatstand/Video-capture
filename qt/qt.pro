@@ -19,7 +19,7 @@ QT = core gui
 
 CONFIG += debug
 
-QMAKE_CXXFLAGS += '-D__STDC_CONSTANT_MACROS'
+QMAKE_CXXFLAGS += '-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS'
 
 LIBS += -lavdevice -lavcodec -lavformat -lswscale -lavutil -lbz2 -lz
 INCLUDEPATH += /usr/include/ffmpeg

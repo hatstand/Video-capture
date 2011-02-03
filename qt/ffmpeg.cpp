@@ -2,6 +2,7 @@
 
 #include <sys/time.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -114,7 +115,7 @@ void Ffmpeg::ProcessFrame() {
   qDebug() << QThread::currentThread();
   int64_t time = av_gettime();
   int64_t actual_delay = time - last_frame_time_;
-  printf("Delay: %lld %f\n", actual_delay, frame_delay_);
+  printf("Delay: %" PRId64 " %f\n", actual_delay, frame_delay_);
   if (actual_delay < frame_delay_) {
     int delay = frame_delay_ - actual_delay;
     printf("Waiting: %d\n", delay);
