@@ -112,7 +112,6 @@ void Ffmpeg::run() {
 }
 
 void Ffmpeg::ProcessFrame() {
-  qDebug() << QThread::currentThread();
   int64_t time_us = av_gettime();
   int64_t actual_delay_us = time_us - last_frame_time_us_;
   printf("Delay: %" PRId64 "us %fms\n", actual_delay_us, frame_delay_ms_);
@@ -168,7 +167,6 @@ void Ffmpeg::ProcessFrame() {
 }
 
 void Ffmpeg::Timeout() {
-  qDebug() << Q_FUNC_INFO;
   timer_->stop();
   ProcessFrame();
 }
