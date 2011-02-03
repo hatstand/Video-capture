@@ -149,11 +149,13 @@ void Ffmpeg::ProcessFrame() {
             codec_ctx_->height, ((AVPicture*)rgb_frame_)->data, ((AVPicture*)rgb_frame_)->linesize);
         }
 
-        pts_ms = SyncVideo(yuv_frame_, pts_ms);
+        //pts_ms = SyncVideo(yuv_frame_, pts_ms);
 
         emit frameAvailable();
 
-        frame_delay_ms_ = (pts_ms - last_pts_ms_) / 2;
+        frame_delay_ms_ = (pts_ms - last_pts_ms_) / codec_ctx_->ticks_per_frame;
+        if (frame_delay_ms_ < 1) { frame_delay_ms_ *= 1000.0; }
+        //frame_delay_ms_ /= (av_q2d(codec_ctx_->time_base) * 100);
         printf("PTS: %f %f Calculated delay: %f\n", pts_ms, last_pts_ms_, frame_delay_ms_);
         timer_->start(frame_delay_ms_);
         last_pts_ms_ = pts_ms;
