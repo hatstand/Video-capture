@@ -12,9 +12,9 @@
 
 int GetBuffer(AVCodecContext* context, AVFrame* frame) {
   int ret = avcodec_default_get_buffer(context, frame);
-  uint64_t* pts = new uint64_t;
-  *pts = *reinterpret_cast<uint64_t*>(context->opaque);
-  frame->opaque = pts;
+  uint64_t* pts_ms = new uint64_t;
+  *pts_ms = *reinterpret_cast<uint64_t*>(context->opaque);
+  frame->opaque = pts_ms;
   return ret;
 }
 
@@ -25,7 +25,7 @@ void ReleaseBuffer(AVCodecContext* context, AVFrame* frame) {
   avcodec_default_release_buffer(context, frame);
 }
 
-Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent), last_pts_(0.0) {
+Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent), last_pts_ms_(0.0) {
   av_register_all();
   avdevice_register_all();
 
@@ -106,20 +106,20 @@ void Ffmpeg::run() {
   timer_->setSingleShot(false);
   connect(timer_, SIGNAL(timeout()), SLOT(Timeout()));
   run_ = true;
-  last_frame_time_ = av_gettime() - 1;
+  last_frame_time_us_ = av_gettime() - 1;
   ProcessFrame();
   exec();
 }
 
 void Ffmpeg::ProcessFrame() {
   qDebug() << QThread::currentThread();
-  int64_t time = av_gettime();
-  int64_t actual_delay = time - last_frame_time_;
-  printf("Delay: %" PRId64 " %f\n", actual_delay, frame_delay_);
-  if (actual_delay < frame_delay_) {
-    int delay = frame_delay_ - actual_delay;
-    printf("Waiting: %d\n", delay);
-    timer_->start(delay);
+  int64_t time_us = av_gettime();
+  int64_t actual_delay_us = time_us - last_frame_time_us_;
+  printf("Delay: %" PRId64 "us %fms\n", actual_delay_us, frame_delay_ms_);
+  if (actual_delay_us < frame_delay_ms_ * 1000.0) {
+    double delay = frame_delay_ms_ * 1000.0 - actual_delay_us;
+    printf("Waiting: %f\n", delay);
+    timer_->start(delay / 1000.0);
     return;
   }
 
@@ -132,15 +132,15 @@ void Ffmpeg::ProcessFrame() {
 
       avcodec_decode_video2(codec_ctx_, yuv_frame_, &frame_finished, &packet);
 
-      double pts = 0.0;
+      double pts_ms = 0.0;
 
-      uint64_t frame_pts = *reinterpret_cast<uint64_t*>(yuv_frame_->opaque);
-      if (packet.dts == AV_NOPTS_VALUE && frame_pts != AV_NOPTS_VALUE) {
-        pts = frame_pts;
+      uint64_t frame_pts_ms = *reinterpret_cast<uint64_t*>(yuv_frame_->opaque);
+      if (packet.dts == AV_NOPTS_VALUE && frame_pts_ms != AV_NOPTS_VALUE) {
+        pts_ms = frame_pts_ms;
       } else if (packet.dts != AV_NOPTS_VALUE) {
-        pts = packet.dts;
+        pts_ms = packet.dts;
       }
-      pts *= av_q2d(codec_ctx_->time_base);
+      pts_ms *= av_q2d(codec_ctx_->time_base);
 
       if (frame_finished) {
         {
@@ -150,15 +150,15 @@ void Ffmpeg::ProcessFrame() {
             codec_ctx_->height, ((AVPicture*)rgb_frame_)->data, ((AVPicture*)rgb_frame_)->linesize);
         }
 
-        pts = SyncVideo(yuv_frame_, pts);
+        pts_ms = SyncVideo(yuv_frame_, pts_ms);
 
         emit frameAvailable();
 
-        frame_delay_ = (pts - last_pts_) > 0 ? pts - last_pts_ : 0;
-        printf("PTS: %f %f Calculated delay: %f\n", pts, last_pts_, frame_delay_);
-        timer_->start(frame_delay_ / 1000.0);
-        last_pts_ = pts;
-        last_frame_time_ = av_gettime();
+        frame_delay_ms_ = pts_ms - last_pts_ms_ - 1;
+        printf("PTS: %f %f Calculated delay: %f\n", pts_ms, last_pts_ms_, frame_delay_ms_);
+        timer_->start(frame_delay_ms_ / 2);
+        last_pts_ms_ = pts_ms;
+        last_frame_time_us_ = av_gettime();
 
         av_free_packet(&packet);
         return;
@@ -173,17 +173,17 @@ void Ffmpeg::Timeout() {
   ProcessFrame();
 }
 
-double Ffmpeg::SyncVideo(AVFrame* frame, double pts) {
-  if (pts != 0.0) {
-    video_clock_ = pts;
+double Ffmpeg::SyncVideo(AVFrame* frame, double pts_ms) {
+  if (pts_ms != 0.0) {
+    video_clock_ = pts_ms;
   } else {
-    pts = video_clock_;
+    pts_ms = video_clock_;
   }
 
   double frame_delay = av_q2d(codec_ctx_->time_base);
   frame_delay += frame->repeat_pict * (frame_delay * 0.5);
   video_clock_ += frame_delay;
-  return pts;
+  return pts_ms;
 }
 
 void Ffmpeg::error(const QString& s) {

@@ -51,9 +51,9 @@ private:
   SwsContext* sws_ctx_;
 
   double video_clock_;
-  double last_pts_;
-  double frame_delay_;
-  int64_t last_frame_time_;
+  double last_pts_ms_;
+  double frame_delay_ms_;
+  int64_t last_frame_time_us_;
 
   QTimer* timer_;
 
