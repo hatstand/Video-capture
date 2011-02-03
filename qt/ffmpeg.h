@@ -31,6 +31,8 @@ private:
   void run();
   void error(const QString& s);
 
+  double SyncVideo(AVFrame* frame, double pts);
+
   AVFormatContext* format_ctx_;
   AVFormatParameters* format_params_;
 
@@ -43,6 +45,8 @@ private:
   AVFrame* rgb_frame_;
 
   SwsContext* sws_ctx_;
+
+  double video_clock_;
 
   QMutex mutex_;
 

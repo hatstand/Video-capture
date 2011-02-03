@@ -7,6 +7,23 @@
 #include <QDebug>
 #include <QMutexLocker>
 
+// http://dranger.com/ffmpeg/tutorial05.html
+
+int GetBuffer(AVCodecContext* context, AVFrame* frame) {
+  int ret = avcodec_default_get_buffer(context, frame);
+  uint64_t* pts = new uint64_t;
+  *pts = *reinterpret_cast<uint64_t*>(context->opaque);
+  frame->opaque = pts;
+  return ret;
+}
+
+void ReleaseBuffer(AVCodecContext* context, AVFrame* frame) {
+  if (frame) {
+    delete reinterpret_cast<uint64_t*>(frame->opaque);
+  }
+  avcodec_default_release_buffer(context, frame);
+}
+
 Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent) {
   av_register_all();
   avdevice_register_all();
@@ -58,6 +75,10 @@ Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent) {
   if (avcodec_open(codec_ctx_, codec_) < 0)
     error("avcodec_open");
 
+  codec_ctx_->opaque = new uint64_t;
+  codec_ctx_->get_buffer = GetBuffer;
+  codec_ctx_->release_buffer = ReleaseBuffer;
+
   yuv_frame_ = avcodec_alloc_frame();
   rgb_frame_ = avcodec_alloc_frame();
 
@@ -77,7 +98,6 @@ Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent) {
 Ffmpeg::~Ffmpeg() {
 }
 
-
 void Ffmpeg::run() {
   run_ = true;
 
@@ -86,17 +106,33 @@ void Ffmpeg::run() {
     if (packet.stream_index == video_stream_) {
       int frame_finished = 0;
 
-      // Lock so that we can't get half finished frames.
-      QMutexLocker l(&mutex_);
+      *reinterpret_cast<uint64_t*>(codec_ctx_->opaque) = packet.pts;
+
       avcodec_decode_video2(codec_ctx_, yuv_frame_, &frame_finished, &packet);
 
+      double pts = 0.0;
+
+      uint64_t frame_pts = *reinterpret_cast<uint64_t*>(yuv_frame_->opaque);
+      if (packet.dts == AV_NOPTS_VALUE && frame_pts != AV_NOPTS_VALUE) {
+        pts = frame_pts;
+      } else if (packet.dts != AV_NOPTS_VALUE) {
+        pts = packet.dts;
+      }
+      pts *= av_q2d(codec_ctx_->time_base);
+
       if (frame_finished) {
-        sws_scale(sws_ctx_, yuv_frame_->data, yuv_frame_->linesize, 0,
-          codec_ctx_->height, ((AVPicture*)rgb_frame_)->data, ((AVPicture*)rgb_frame_)->linesize);
+        {
+          // Lock so that we can't get half finished frames.
+          QMutexLocker l(&mutex_);
+          sws_scale(sws_ctx_, yuv_frame_->data, yuv_frame_->linesize, 0,
+            codec_ctx_->height, ((AVPicture*)rgb_frame_)->data, ((AVPicture*)rgb_frame_)->linesize);
+        }
+
+        pts = SyncVideo(yuv_frame_, pts);
+        printf("%f\n", pts);
+        usleep(pts);
 
         emit frameAvailable();
-
-        usleep(1.0e6 / 29.97);
       }
     }
 
@@ -107,6 +143,19 @@ void Ffmpeg::run() {
     if (!run_)
       return;
   }
+}
+
+double Ffmpeg::SyncVideo(AVFrame* frame, double pts) {
+  if (pts != 0.0) {
+    video_clock_ = pts;
+  } else {
+    pts = video_clock_;
+  }
+
+  double frame_delay = av_q2d(codec_ctx_->time_base);
+  frame_delay += frame->repeat_pict * (frame_delay * 0.5);
+  video_clock_ += frame_delay;
+  return pts;
 }
 
 void Ffmpeg::error(const QString& s) {
