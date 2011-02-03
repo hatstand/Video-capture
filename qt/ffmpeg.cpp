@@ -41,7 +41,7 @@ Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent) {
 
   if (video_stream_ == -1)
     error("video_stream");
-  
+
   codec_ctx_ = format_ctx_->streams[video_stream_]->codec;
   codec_ = avcodec_find_decoder(codec_ctx_->codec_id);
 

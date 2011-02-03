@@ -5,13 +5,13 @@
 TEMPLATE = app
 
 SOURCES += main.cpp \
-	ffmpeg.cpp \
-	mainwindow.cpp \
-	mylabel.cpp
+  ffmpeg.cpp \
+  mainwindow.cpp \
+  mylabel.cpp
 
 HEADERS += ffmpeg.h \
-	mainwindow.h \
-	mylabel.h
+  mainwindow.h \
+  mylabel.h
 
 FORMS += mainwindow.ui
 
@@ -19,5 +19,7 @@ QT = core gui
 
 CONFIG += debug
 
-LIBS += -lavdevice -lavcodec -lavformat -lswscale
+QMAKE_CXXFLAGS += '-D__STDC_CONSTANT_MACROS'
+
+LIBS += -lavdevice -lavcodec -lavformat -lswscale -lavutil
 INCLUDEPATH += /usr/include/ffmpeg
