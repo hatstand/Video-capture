@@ -19,7 +19,7 @@ Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent) {
   format_params_->time_base.den = 30000;
   format_params_->time_base.num = 1001;
 
-  format_ctx_ = av_alloc_format_context();
+  format_ctx_ = avformat_alloc_context();
 
   /*AVInputFormat* input_format = av_find_input_format("video4linux2");
   if (!input_format)
@@ -88,7 +88,7 @@ void Ffmpeg::run() {
 
       // Lock so that we can't get half finished frames.
       QMutexLocker l(&mutex_);
-      avcodec_decode_video(codec_ctx_, yuv_frame_, &frame_finished, packet.data, packet.size);
+      avcodec_decode_video2(codec_ctx_, yuv_frame_, &frame_finished, &packet);
 
       if (frame_finished) {
         sws_scale(sws_ctx_, yuv_frame_->data, yuv_frame_->linesize, 0,
