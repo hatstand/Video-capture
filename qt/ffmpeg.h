@@ -19,7 +19,7 @@ extern "C" {
 class Ffmpeg : public QThread {
 Q_OBJECT
 public:
-  Ffmpeg(QObject* parent = 0);
+  Ffmpeg(const char* filename, QObject* parent = 0);
   virtual ~Ffmpeg();
   QImage getImage();
 

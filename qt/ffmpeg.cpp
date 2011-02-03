@@ -25,7 +25,7 @@ void ReleaseBuffer(AVCodecContext* context, AVFrame* frame) {
   avcodec_default_release_buffer(context, frame);
 }
 
-Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent), last_pts_ms_(0.0) {
+Ffmpeg::Ffmpeg(const char* filename, QObject* parent) : QThread(parent), last_pts_ms_(0.0) {
   av_register_all();
   avdevice_register_all();
 
@@ -44,8 +44,7 @@ Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent), last_pts_ms_(0.0) {
     error("av_find_input_format");
     */
 
-  const char* filename = "foo.mp4";
-  if (av_open_input_file(&format_ctx_, filename, NULL, 0, format_params_) != 0)
+  if (av_open_input_file(&format_ctx_, filename, NULL, 0, NULL) != 0)
     error("av_open_input_file");
 
   if (av_find_stream_info(format_ctx_) < 0)
@@ -133,13 +132,14 @@ void Ffmpeg::ProcessFrame() {
 
       double pts_ms = 0.0;
 
-      uint64_t frame_pts_ms = *reinterpret_cast<uint64_t*>(yuv_frame_->opaque);
+      uint64_t frame_pts_ms = yuv_frame_->opaque ? *reinterpret_cast<uint64_t*>(yuv_frame_->opaque) : 0;
       if (packet.dts == AV_NOPTS_VALUE && frame_pts_ms != AV_NOPTS_VALUE) {
         pts_ms = frame_pts_ms;
       } else if (packet.dts != AV_NOPTS_VALUE) {
         pts_ms = packet.dts;
       }
       pts_ms *= av_q2d(codec_ctx_->time_base);
+      printf("%f\n", av_q2d(codec_ctx_->time_base));
 
       if (frame_finished) {
         {
