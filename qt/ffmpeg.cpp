@@ -116,10 +116,10 @@ void Ffmpeg::ProcessFrame() {
   int64_t time_us = av_gettime();
   int64_t actual_delay_us = time_us - last_frame_time_us_;
   printf("Delay: %" PRId64 "us %fms\n", actual_delay_us, frame_delay_ms_);
-  if (actual_delay_us < frame_delay_ms_ * 1000.0) {
-    double delay = frame_delay_ms_ * 1000.0 - actual_delay_us;
-    printf("Waiting: %f\n", delay);
-    timer_->start(delay / 1000.0);
+  if (actual_delay_us / 1000 < int(frame_delay_ms_)) {  // Closest ms.
+    int delay = (frame_delay_ms_ * 1000.0 - actual_delay_us) / 1000.0;
+    printf("Waiting: %d\n", delay);
+    timer_->start(delay);
     return;
   }
 
@@ -154,9 +154,9 @@ void Ffmpeg::ProcessFrame() {
 
         emit frameAvailable();
 
-        frame_delay_ms_ = pts_ms - last_pts_ms_ - 1;
+        frame_delay_ms_ = (pts_ms - last_pts_ms_) / 2;
         printf("PTS: %f %f Calculated delay: %f\n", pts_ms, last_pts_ms_, frame_delay_ms_);
-        timer_->start(frame_delay_ms_ / 2);
+        timer_->start(frame_delay_ms_);
         last_pts_ms_ = pts_ms;
         last_frame_time_us_ = av_gettime();
 

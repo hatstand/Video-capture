@@ -3,6 +3,8 @@
 #include <QMouseEvent>
 #include <QPainter>
 
+#include <QtDebug>
+
 int MyLabel::brush_alpha_ = 200;
 QBrush MyLabel::green_brush_(QColor(0, 255, 0, brush_alpha_));
 QBrush MyLabel::red_brush_(QColor(255, 0, 0, brush_alpha_));
@@ -12,6 +14,7 @@ QBrush MyLabel::orange_brush_(QColor(255, 155, 0, brush_alpha_));
 QBrush MyLabel::grey_brush_(QColor(0, 0, 0, brush_alpha_));
 
 MyLabel::MyLabel(QWidget* parent) : QLabel(parent), mouse_down_(false) {
+  last_frame_ = QTime::currentTime();
 }
 
 MyLabel::~MyLabel() {
@@ -67,4 +70,12 @@ QBrush& MyLabel::getBrush(Colour c) {
     default:
       return grey_brush_;
   }
+}
+
+void MyLabel::setImage(const QImage& image) {
+  image_ = image;
+  update();
+  QTime now = QTime::currentTime();
+  qDebug() << 1000.0 / last_frame_.msecsTo(now) << "fps";
+  last_frame_ = now;
 }

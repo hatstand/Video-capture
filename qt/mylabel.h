@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QMap>
 #include <QRect>
+#include <QTime>
 
 class MyLabel : public QLabel {
 Q_OBJECT
@@ -21,7 +22,7 @@ public:
     Orange
   };
 
-  void setImage(const QImage& image)  { image_ = image; update(); }
+  void setImage(const QImage& image);
 
 public slots:
   void setBox(int colour);
@@ -48,6 +49,8 @@ private:
   static QBrush blue_brush_;
   static QBrush orange_brush_;
   static QBrush grey_brush_;
+
+  QTime last_frame_;
 };
 
 #endif
