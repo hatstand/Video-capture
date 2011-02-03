@@ -1,5 +1,8 @@
 #include "ffmpeg.h"
 
+#include <sys/time.h>
+#include <unistd.h>
+
 #include <QCoreApplication>
 #include <QDebug>
 #include <QMutexLocker>
@@ -18,12 +21,13 @@ Ffmpeg::Ffmpeg(QObject* parent) : QThread(parent) {
 
   format_ctx_ = av_alloc_format_context();
 
-  AVInputFormat* input_format = av_find_input_format("video4linux2");
+  /*AVInputFormat* input_format = av_find_input_format("video4linux2");
   if (!input_format)
     error("av_find_input_format");
+    */
 
-  const char* filename = "/dev/video0";
-  if (av_open_input_file(&format_ctx_, filename, input_format, 0, format_params_) != 0)
+  const char* filename = "foo.mp4";
+  if (av_open_input_file(&format_ctx_, filename, NULL, 0, format_params_) != 0)
     error("av_open_input_file");
 
   if (av_find_stream_info(format_ctx_) < 0)
@@ -91,6 +95,8 @@ void Ffmpeg::run() {
           codec_ctx_->height, ((AVPicture*)rgb_frame_)->data, ((AVPicture*)rgb_frame_)->linesize);
 
         emit frameAvailable();
+
+        usleep(1.0e6 / 29.97);
       }
     }
 

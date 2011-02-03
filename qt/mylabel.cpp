@@ -44,18 +44,8 @@ void MyLabel::mouseReleaseEvent(QMouseEvent*) {
 }
 
 void MyLabel::paintEvent(QPaintEvent* event) {
-  QLabel::paintEvent(event);
-
-  QBrush brush(QColor(0, 255, 0, 200));
-
   QPainter p(this);
-  p.setBrush(grey_brush_);
-  p.drawRect(box_);
-
-  for (QMap<Colour, QRect>::const_iterator it = boxes_.constBegin(); it != boxes_.constEnd(); ++it) {
-    p.setBrush(getBrush(it.key()));
-    p.drawRect(it.value());
-  }
+  p.drawImage(0, 0, image_);
 }
 
 void MyLabel::setBox(int colour) {

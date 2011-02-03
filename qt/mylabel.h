@@ -21,6 +21,8 @@ public:
     Orange
   };
 
+  void setImage(const QImage& image)  { image_ = image; update(); }
+
 public slots:
   void setBox(int colour);
 
@@ -36,6 +38,8 @@ private:
   QRect box_;
   bool mouse_down_;
   QMap<Colour, QRect> boxes_;
+
+  QImage image_;
 
   static int brush_alpha_;
   static QBrush green_brush_;

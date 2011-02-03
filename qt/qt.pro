@@ -21,5 +21,5 @@ CONFIG += debug
 
 QMAKE_CXXFLAGS += '-D__STDC_CONSTANT_MACROS'
 
-LIBS += -lavdevice -lavcodec -lavformat -lswscale -lavutil
+LIBS += -lavdevice -lavcodec -lavformat -lswscale -lavutil -lbz2 -lz
 INCLUDEPATH += /usr/include/ffmpeg

@@ -30,5 +30,5 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::frameAvailable() {
-  ui_.video_label_->setPixmap(QPixmap::fromImage(grabber_->getImage()));
+  ui_.video_label_->setImage(grabber_->getImage());
 }
