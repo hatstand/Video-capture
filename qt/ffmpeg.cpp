@@ -81,15 +81,18 @@ Ffmpeg::Ffmpeg(const char* filename, QObject* parent) : QThread(parent), last_pt
 
   yuv_frame_ = avcodec_alloc_frame();
   rgb_frame_ = avcodec_alloc_frame();
+  deint_frame_ = avcodec_alloc_frame();
 
   // Allocate RGB frame. YUV is allocated by ffmpeg on frame read.
-  int frame_size = avpicture_get_size(PIX_FMT_RGB24, codec_ctx_->width, codec_ctx_->height);
+  int frame_size = avpicture_get_size(PIX_FMT_RGB555LE, codec_ctx_->width, codec_ctx_->height);
   uint8_t* buffer = (uint8_t*) av_malloc(frame_size * sizeof(uint8_t));
-  avpicture_fill((AVPicture*)rgb_frame_, buffer, PIX_FMT_RGB24, codec_ctx_->width, codec_ctx_->height);
+  avpicture_fill((AVPicture*)rgb_frame_, buffer, PIX_FMT_RGB555LE, codec_ctx_->width, codec_ctx_->height);
 
   sws_ctx_ = sws_getContext(codec_ctx_->width, codec_ctx_->height, codec_ctx_->pix_fmt,
-    codec_ctx_->width, codec_ctx_->height, PIX_FMT_RGB24,
+    codec_ctx_->width, codec_ctx_->height, PIX_FMT_RGB555LE,
     SWS_BICUBIC, NULL, NULL, NULL);
+
+  av_log_set_level(AV_LOG_DEBUG);
 
   if (!sws_ctx_)
     error("sws_getContext");
@@ -121,6 +124,8 @@ void Ffmpeg::ProcessFrame() {
     return;
   }
 
+  static int skip = 0;
+
   AVPacket packet;
   while (av_read_frame(format_ctx_, &packet) >= 0) {
     if (packet.stream_index == video_stream_) {
@@ -142,21 +147,36 @@ void Ffmpeg::ProcessFrame() {
       printf("%f\n", av_q2d(codec_ctx_->time_base));
 
       if (frame_finished) {
+        /*
+        int frame_size = avpicture_get_size(codec_ctx_->pix_fmt, codec_ctx_->width, codec_ctx_->height);
+        uint8_t* buffer = (uint8_t*) av_malloc(frame_size * sizeof(uint8_t));
+        avpicture_fill(
+            (AVPicture*)deint_frame_, buffer, codec_ctx_->pix_fmt, codec_ctx_->width, codec_ctx_->height);
+        avpicture_deinterlace(
+            (AVPicture*)deint_frame_,
+            (const AVPicture*)yuv_frame_,
+            codec_ctx_->pix_fmt,
+            codec_ctx_->width,
+            codec_ctx_->height);
+        */
+
         {
           // Lock so that we can't get half finished frames.
           QMutexLocker l(&mutex_);
           sws_scale(sws_ctx_, yuv_frame_->data, yuv_frame_->linesize, 0,
             codec_ctx_->height, ((AVPicture*)rgb_frame_)->data, ((AVPicture*)rgb_frame_)->linesize);
+          //sws_scale(sws_ctx_, deint_frame_->data, deint_frame_->linesize, 0,
+          //  codec_ctx_->height, ((AVPicture*)rgb_frame_)->data, ((AVPicture*)rgb_frame_)->linesize);
         }
-
-        //pts_ms = SyncVideo(yuv_frame_, pts_ms);
 
         emit frameAvailable();
 
         frame_delay_ms_ = (pts_ms - last_pts_ms_) / codec_ctx_->ticks_per_frame;
         if (frame_delay_ms_ < 1) { frame_delay_ms_ *= 1000.0; }
         //frame_delay_ms_ /= (av_q2d(codec_ctx_->time_base) * 100);
-        printf("PTS: %f %f Calculated delay: %f\n", pts_ms, last_pts_ms_, frame_delay_ms_);
+        frame_delay_ms_ += yuv_frame_->repeat_pict * (frame_delay_ms_ * 0.5);
+        printf("PTS: %f %f Calculated delay: %f repeat: %d\n",
+            pts_ms, last_pts_ms_, frame_delay_ms_, yuv_frame_->repeat_pict);
         timer_->start(frame_delay_ms_);
         last_pts_ms_ = pts_ms;
         last_frame_time_us_ = av_gettime();
@@ -165,6 +185,7 @@ void Ffmpeg::ProcessFrame() {
         return;
       }
     }
+    av_free_packet(&packet);
   }
 }
 
@@ -192,7 +213,7 @@ void Ffmpeg::error(const QString& s) {
 
 QImage Ffmpeg::getImage() {
   QMutexLocker l(&mutex_);
-  return QImage(rgb_frame_->data[0], codec_ctx_->width, codec_ctx_->height, QImage::Format_RGB888);
+  return QImage(rgb_frame_->data[0], codec_ctx_->width, codec_ctx_->height, QImage::Format_RGB555);
 }
 
 void Ffmpeg::stop() {

@@ -47,6 +47,7 @@ private:
 
   AVFrame* yuv_frame_;
   AVFrame* rgb_frame_;
+  AVFrame* deint_frame_;
 
   SwsContext* sws_ctx_;
 
