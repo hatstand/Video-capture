@@ -20,6 +20,7 @@ QT = core gui
 CONFIG += debug
 
 QMAKE_CXXFLAGS += '-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS'
+QMAKE_CXXFLAGS_WARN_ON = '-Wall -Wno-sign-compare'
 
 LIBS += -lavdevice -lavcodec -lavformat -lswscale -lavutil -lbz2 -lz
 INCLUDEPATH += /usr/include/ffmpeg

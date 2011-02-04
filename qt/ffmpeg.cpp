@@ -191,7 +191,7 @@ double Ffmpeg::SyncVideo(AVFrame* frame, double pts_ms) {
 }
 
 void Ffmpeg::error(const QString& s) {
-  qFatal(s.toAscii());
+  qFatal("%s", s.toAscii().constData());
 }
 
 QImage Ffmpeg::getImage() {
